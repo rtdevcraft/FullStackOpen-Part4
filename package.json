@@ -19,7 +19,6 @@
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "mongoose": "^8.5.3",
-    "moongoose": "^0.0.1",
     "morgan": "^1.10.0"
   },
   "devDependencies": {

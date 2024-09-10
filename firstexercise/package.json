@@ -9,7 +9,8 @@
     "logs:prod": "fly logs",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test-config": "node -r dotenv/config ./utils/config.js"
   },
   "author": "Matti Luukkainen",
   "license": "MIT",

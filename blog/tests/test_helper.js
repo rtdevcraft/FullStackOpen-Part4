@@ -2,17 +2,25 @@ const Blog = require('../models/blog')
 
 const initialBlogs = [
   {
-    content: 'HTML is easy',
-    important: false,
+    title: 'HTML is easy',
+    author: 'John Doe',
+    url: 'http://example.com/html-easy',
+    likes: 5,
   },
   {
-    content: 'Browser can execute only JavaScript',
-    important: true,
+    title: 'Browser can execute only JavaScript',
+    author: 'Jane Smith',
+    url: 'http://example.com/browser-javascript',
+    likes: 10,
   },
 ]
 
 const nonExistingId = async () => {
-  const blog = new Blog({ content: 'willremovethissoon' })
+  const blog = new Blog({
+    title: 'Will remove this soon',
+    author: 'Temporary Author',
+    url: 'http://example.com/temp',
+  })
   await blog.save()
   await blog.deleteOne()
 

@@ -5,6 +5,7 @@ const blogSchema = new mongoose.Schema({
     type: String,
     required: true,
     minlength: 5,
+    likes: { type: Number, default: 0 },
   },
   important: Boolean,
 })

@@ -6,38 +6,35 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.put('/:id', async (request, response) => {
+blogsRouter.put('/:id', async (request, response, next) => {
   const body = request.body
 
   const blog = {
-    content: body.content,
-    important: body.important,
+    likes: body.likes,
   }
 
-  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-    new: true,
-  })
-  response.json(updatedBlog)
-})
-
-blogsRouter.put('/:id', async (request, response) => {
-  const { likes } = request.body
-
-  const updatedBlog = await Blog.findByIdAndUpdate(
-    request.params.id,
-    { likes },
-    { new: true, runValidators: true, context: 'query' }
-  )
-
-  if (updatedBlog) {
-    response.json(updatedBlog)
-  } else {
-    response.status(404).end()
+  try {
+    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+      new: true,
+    })
+    if (updatedBlog) {
+      response.json(updatedBlog)
+    } else {
+      response.status(404).end()
+    }
+  } catch (error) {
+    next(error)
   }
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const blog = new Blog(request.body)
+  const body = request.body
+
+  const blog = new Blog({
+    content: body.content,
+    important: body.important || false,
+  })
+
   const savedBlog = await blog.save()
   response.status(201).json(savedBlog)
 })

@@ -8,24 +8,25 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs)
 })
 
-blogsRouter.put('/:id', async (request, response, next) => {
+blogsRouter.put('/:id', async (request, response) => {
   const body = request.body
 
   const blog = {
+    title: body.title,
+    author: body.author,
+    url: body.url,
     likes: body.likes,
+    user: body.user || null,
   }
 
-  try {
-    const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
-      new: true,
-    })
-    if (updatedBlog) {
-      response.json(updatedBlog)
-    } else {
-      response.status(404).end()
-    }
-  } catch (error) {
-    next(error)
+  const updatedBlog = await Blog.findByIdAndUpdate(request.params.id, blog, {
+    new: true,
+  }).populate('user', { username: 1, name: 1 })
+
+  if (updatedBlog) {
+    response.json(updatedBlog)
+  } else {
+    response.status(404).end()
   }
 })
 

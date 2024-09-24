@@ -6,7 +6,6 @@ const app = require('../app')
 const api = supertest(app)
 
 const helper = require('./test_helper')
-
 const Blog = require('../models/blog')
 
 describe('when there is initially some blogs saved', () => {
@@ -24,21 +23,18 @@ describe('when there is initially some blogs saved', () => {
 
   test('all blogs are returned', async () => {
     const response = await api.get('/api/blogs')
-
     assert.strictEqual(response.body.length, helper.initialBlogs.length)
   })
 
   test('a specific blog is within the returned blogs', async () => {
     const response = await api.get('/api/blogs')
-
-    const contents = response.body.map((r) => r.content)
-    assert(contents.includes('Browser can execute only JavaScript'))
+    const titles = response.body.map((r) => r.title)
+    assert(titles.includes('Browser can execute only JavaScript'))
   })
 
   describe('viewing a specific blog', () => {
     test('succeeds with a valid id', async () => {
       const blogsAtStart = await helper.blogsInDb()
-
       const blogToView = blogsAtStart[0]
 
       const resultBlog = await api
@@ -51,13 +47,11 @@ describe('when there is initially some blogs saved', () => {
 
     test('fails with statuscode 404 if blog does not exist', async () => {
       const validNonexistingId = await helper.nonExistingId()
-
       await api.get(`/api/blogs/${validNonexistingId}`).expect(404)
     })
 
-    test('fails with statuscode 400 id is invalid', async () => {
+    test('fails with statuscode 400 if id is invalid', async () => {
       const invalidId = '5a3d5da59070081a82a3445'
-
       await api.get(`/api/blogs/${invalidId}`).expect(400)
     })
   })
@@ -65,8 +59,10 @@ describe('when there is initially some blogs saved', () => {
   describe('addition of a new blog', () => {
     test('succeeds with valid data', async () => {
       const newBlog = {
-        content: 'async/await simplifies making async calls',
-        important: true,
+        title: 'Async/await simplifies making async calls',
+        author: 'John Doe',
+        url: 'http://example.com/async-await',
+        likes: 0,
       }
 
       await api
@@ -78,19 +74,19 @@ describe('when there is initially some blogs saved', () => {
       const blogsAtEnd = await helper.blogsInDb()
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length + 1)
 
-      const contents = blogsAtEnd.map((n) => n.content)
-      assert(contents.includes('async/await simplifies making async calls'))
+      const titles = blogsAtEnd.map((n) => n.title)
+      assert(titles.includes('Async/await simplifies making async calls'))
     })
 
     test('fails with status code 400 if data invalid', async () => {
       const newBlog = {
-        important: true,
+        author: 'John Doe',
+        likes: 0,
       }
 
       await api.post('/api/blogs').send(newBlog).expect(400)
 
       const blogsAtEnd = await helper.blogsInDb()
-
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length)
     })
   })
@@ -103,31 +99,30 @@ describe('when there is initially some blogs saved', () => {
       await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204)
 
       const blogsAtEnd = await helper.blogsInDb()
-
       assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length - 1)
 
-      const contents = blogsAtEnd.map((r) => r.content)
-      assert(!contents.includes(blogToDelete.content))
+      const titles = blogsAtEnd.map((r) => r.title)
+      assert(!titles.includes(blogToDelete.title))
     })
   })
-})
 
-describe('updating a blog', () => {
-  test('succeeds in updating likes', async () => {
-    const blogsAtStart = await helper.blogsInDb()
-    const blogToUpdate = blogsAtStart[0]
+  describe('updating a blog', () => {
+    test('succeeds in updating likes', async () => {
+      const blogsAtStart = await helper.blogsInDb()
+      const blogToUpdate = blogsAtStart[0]
 
-    const updatedLikes = blogToUpdate.likes + 1
+      const updatedLikes = blogToUpdate.likes + 1
 
-    await api
-      .put(`/api/blogs/${blogToUpdate.id}`)
-      .send({ likes: updatedLikes })
-      .expect(200)
+      await api
+        .put(`/api/blogs/${blogToUpdate.id}`)
+        .send({ likes: updatedLikes })
+        .expect(200)
 
-    const blogsAtEnd = await helper.blogsInDb()
-    const updatedBlog = blogsAtEnd.find((b) => b.id === blogToUpdate.id)
+      const blogsAtEnd = await helper.blogsInDb()
+      const updatedBlog = blogsAtEnd.find((b) => b.id === blogToUpdate.id)
 
-    assert.strictEqual(updatedBlog.likes, updatedLikes)
+      assert.strictEqual(updatedBlog.likes, updatedLikes)
+    })
   })
 })
 
